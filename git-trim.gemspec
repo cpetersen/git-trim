@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{A script to remove all merged branches that aren't protected.}
   spec.description   = %q{A script to remove all merged branches that aren't specified in the .git-protected-branches file.}
-  spec.homepage      = "https://github.com/assaydepot/git-trim"
+  spec.homepage      = "https://github.com/cpetersen/git-trim"
   spec.license       = "MIT"
 
   # Specify which files should be added to the gem when it is released.
