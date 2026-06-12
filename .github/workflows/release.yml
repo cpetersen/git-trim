@@ -32,12 +32,21 @@ jobs:
           echo "Updated version to $VERSION"
           cat lib/git-trim/version.rb
 
+      # bundler-cache sets frozen/deployment mode, which rejects the now
+      # out-of-date lockfile entry for git-trim itself. Re-lock so the
+      # release commit keeps the gemspec and lockfile in sync.
+      - name: Update Gemfile.lock
+        run: |
+          bundle config unset deployment
+          bundle config unset frozen
+          BUNDLE_FROZEN=false BUNDLE_DEPLOYMENT=false bundle lock
+
       - name: Commit version bump
         run: |
           VERSION="${{ inputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add lib/git-trim/version.rb
+          git add lib/git-trim/version.rb Gemfile.lock
           git commit -m "Release v$VERSION"
 
       # Builds the gem into pkg/, tags v$VERSION, pushes the commit and
