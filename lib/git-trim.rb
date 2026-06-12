@@ -11,7 +11,13 @@ class GitTrim
     protected_branches ||= []
     protected_branches << "main"
 
-    branches = %x{git branch --merged main --format='%(refname:short)'}.split("\n").collect(&:strip)
+    base = base_ref
+    unless base
+      warn "git-trim: neither 'main' nor 'origin/main' exists; nothing to trim against"
+      return 1
+    end
+
+    branches = %x{git branch --merged #{Shellwords.escape(base)} --format='%(refname:short)'}.split("\n").collect(&:strip)
     branches -= protected_branches
     branches -= [current_branch]
 
@@ -28,10 +34,21 @@ class GitTrim
       end
       puts %x{git branch -d #{Shellwords.escape(branch)}}
     end
+
+    0
   end
 
   def current_branch
     %x{git branch --show-current}.strip
+  end
+
+  # Local main when it exists; otherwise origin/main (e.g. bare-repo +
+  # worktrees layouts where no local main is checked out). Nil if neither.
+  def base_ref
+    ["main", "origin/main"].find do |ref|
+      %x{git rev-parse --verify --quiet #{Shellwords.escape(ref)}}
+      $?.success?
+    end
   end
 
   # Maps branch name => worktree path for linked worktrees. The first entry

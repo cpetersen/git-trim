@@ -22,7 +22,7 @@ Or install it yourself as:
 
 ## Usage
 
-You can call `git trim` and it will remove any branch that is fully merged into `main`, unless it is listed in the `.git-protected-branches` file. It will not remove the main branch or the branch you currently have checked out.
+You can call `git trim` and it will remove any branch that is fully merged into `main`, unless it is listed in the `.git-protected-branches` file. It will not remove the main branch or the branch you currently have checked out. If no local `main` exists (common in bare-repo + worktrees layouts), it compares against `origin/main` instead.
 
 If a merged branch is checked out in a [linked worktree](https://git-scm.com/docs/git-worktree), `git trim` removes the worktree first and then deletes the branch. Worktrees with uncommitted changes or untracked files are left alone (along with their branch).
 

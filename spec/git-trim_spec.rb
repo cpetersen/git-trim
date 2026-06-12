@@ -109,6 +109,24 @@ RSpec.describe GitTrim do
       expect(worktree_paths).to include(wt)
     end
 
+    it "falls back to origin/main when no local main exists" do
+      git(repo, "checkout", "-b", "feature")
+      git(repo, "branch", "-D", "main")
+      git(repo, "branch", "merged-branch", "origin/main")
+      run_trim
+      expect(branches).not_to include("merged-branch")
+      expect(branches).to include("feature")
+    end
+
+    it "warns and returns 1 when neither main nor origin/main exists" do
+      git(repo, "checkout", "-b", "feature")
+      git(repo, "branch", "-D", "main")
+      git(repo, "remote", "remove", "origin")
+      status = nil
+      expect { status = run_trim }.to output(/neither 'main' nor 'origin\/main' exists/).to_stderr
+      expect(status).to eq(1)
+    end
+
     it "skips dirty worktrees and keeps their branch" do
       wt = File.join(@tmp, "wt-dirty")
       git(repo, "worktree", "add", "-b", "dirty-wt-branch", wt, "main")
