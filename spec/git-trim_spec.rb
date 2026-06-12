@@ -27,7 +27,8 @@ RSpec.describe GitTrim do
         original_stdout = $stdout
         $stdout = StringIO.new
         begin
-          GitTrim.new.run
+          status = GitTrim.new.run
+          { status: status, stdout: $stdout.string }
         ensure
           $stdout = original_stdout
         end
@@ -122,19 +123,21 @@ RSpec.describe GitTrim do
       git(repo, "checkout", "-b", "feature")
       git(repo, "branch", "-D", "main")
       git(repo, "remote", "remove", "origin")
-      status = nil
-      expect { status = run_trim }.to output(/neither 'main' nor 'origin\/main' exists/).to_stderr
-      expect(status).to eq(1)
+      result = nil
+      expect { result = run_trim }.to output(/neither 'main' nor 'origin\/main' exists/).to_stderr
+      expect(result[:status]).to eq(1)
     end
 
     it "skips dirty worktrees and keeps their branch" do
       wt = File.join(@tmp, "wt-dirty")
       git(repo, "worktree", "add", "-b", "dirty-wt-branch", wt, "main")
       File.write(File.join(wt, "untracked.txt"), "uncommitted")
-      run_trim
+      result = run_trim
       expect(branches).to include("dirty-wt-branch")
       expect(worktree_paths).to include(wt)
       expect(File).to exist(File.join(wt, "untracked.txt"))
+      expect(result[:stdout]).to include("Skipping branch 'dirty-wt-branch': worktree at #{wt} has local changes")
+      expect(result[:stdout]).not_to include("fatal")
     end
   end
 end

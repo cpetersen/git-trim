@@ -25,9 +25,14 @@ class GitTrim
 
     branches.each do |branch|
       if (path = worktrees[branch])
-        %x{git worktree remove #{Shellwords.escape(path)}}
+        output = %x{git worktree remove #{Shellwords.escape(path)} 2>&1}
         unless $?.success?
-          puts "Skipping branch '#{branch}': could not remove worktree at #{path}"
+          if output.include?("contains modified or untracked files")
+            puts "Skipping branch '#{branch}': worktree at #{path} has local changes"
+          else
+            puts "Skipping branch '#{branch}': could not remove worktree at #{path}"
+            puts output
+          end
           next
         end
         puts "Removed worktree #{path}"
