@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{A script to remove all merged branches that aren't protected.}
   spec.description   = %q{A script to remove all merged branches that aren't specified in the .git-protected-branches file.}
-  spec.homepage      = "https://github.com/assaydepot/git-trim"
+  spec.homepage      = "https://github.com/cpetersen/git-trim"
   spec.license       = "MIT"
 
   # Specify which files should be added to the gem when it is released.
@@ -23,7 +23,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ["lib", "bin"]
 
-  spec.add_development_dependency "bundler", "~> 1.16"
+  spec.add_development_dependency "bundler", ">= 1.16"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.0"
 end

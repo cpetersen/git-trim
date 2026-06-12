@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (e.g. 0.2.0)"
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Run specs
+        run: bundle exec rake spec
+
+      - name: Update version
+        run: |
+          VERSION="${{ inputs.version }}"
+          sed -i "s/VERSION = \".*\"/VERSION = \"$VERSION\"/" lib/git-trim/version.rb
+          echo "Updated version to $VERSION"
+          cat lib/git-trim/version.rb
+
+      - name: Commit version bump
+        run: |
+          VERSION="${{ inputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add lib/git-trim/version.rb
+          git commit -m "Release v$VERSION"
+
+      # Builds the gem into pkg/, tags v$VERSION, pushes the commit and
+      # tag, and publishes to RubyGems via OIDC trusted publishing.
+      - name: Release to RubyGems
+        uses: rubygems/release-gem@v1
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ inputs.version }}"
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            --generate-notes \
+            pkg/git-trim-*.gem
