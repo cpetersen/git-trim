@@ -34,6 +34,7 @@ If no local `main` exists (common in bare-repo + worktrees layouts), it compares
 | --- | --- |
 | `-n`, `--dry-run` | Print exactly what would be removed and which signal proved it merged, without deleting anything. It still runs `git fetch -ap`, so the report reflects the current remote. |
 | `--no-gh` | Skip the GitHub check entirely and use git-only detection. |
+| `-v`, `--version` | Print the installed version. |
 | `-h`, `--help` | Show usage. |
 
 ### How merges are detected
