@@ -16,7 +16,9 @@ RSpec.describe GitTrim do
         @tmp = File.realpath(tmp)
         @bin = File.join(@tmp, "bin")
         Dir.mkdir(@bin)
-        real_git = %x{command -v git}.strip
+        real_git = ENV["PATH"].split(File::PATH_SEPARATOR)
+          .collect { |dir| File.join(dir, "git") }
+          .find { |path| File.executable?(path) }
         File.symlink(real_git, File.join(@bin, "git"))
         original_path = ENV["PATH"]
         ENV["PATH"] = @bin
