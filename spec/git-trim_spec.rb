@@ -453,6 +453,12 @@ RSpec.describe GitTrim do
       end
     end
 
+    it "prints its version with --version" do
+      result = run_trim("--version")
+      expect(result[:status]).to eq(0)
+      expect(result[:stdout]).to eq("git-trim #{GitTrim::VERSION}\n")
+    end
+
     it "rejects unknown options" do
       result = run_trim("--bogus")
       expect(result[:status]).to eq(1)

@@ -38,10 +38,12 @@ class GitTrim
     @dry_run = false
     @use_gh = true
     help = false
+    version = false
     parser = OptionParser.new do |opts|
       opts.banner = "Usage: git trim [--dry-run] [--no-gh]"
       opts.on("-n", "--dry-run", "Show what would be removed, and why, without changing anything") { @dry_run = true }
       opts.on("--[no-]gh", "Use the GitHub CLI to detect merged PRs (default: on when available)") { |value| @use_gh = value }
+      opts.on("-v", "--version", "Show the version") { version = true }
       opts.on("-h", "--help", "Show this help") { help = true }
     end
     begin
@@ -53,6 +55,10 @@ class GitTrim
     end
     if help
       puts parser
+      return 0
+    end
+    if version
+      puts "git-trim #{VERSION}"
       return 0
     end
     remove_instance_variable(:@merged_prs) if defined?(@merged_prs)
